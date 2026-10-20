@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DoubleFour — double-time feel desk</title>
+  <meta name="description" content="Same BPM, same chords. Four live-instrument bars in double-time feel so the loop finally changes gear." />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="tap" id="tap"><button id="tapBtn">Tap to start audio</button><p>iOS: the silent switch mutes Web Audio. Flip it off to hear the chairs.</p></div>
+<main>
+  <p class="eyebrow">WorkinWithAI · live chairs</p>
+  <h1>DoubleFour</h1>
+  <p class="lead">Double-time feel desk. The loop never changes gear, so the track never finishes. Session players keep the click and the chords, then move the kit, upright and piano to the next subdivision for four bars. Same BPM, twice the drive. Live FluidR3 grand piano, upright bass, string ensemble and a CC0 acoustic kit. Not a key change. Not half-time.</p>
+  <p class="status" id="status">Seating chairs…</p>
+  <p class="eyebrow">Your loop</p>
+  <div class="row inputs">
+    <label>BPM <input id="bpm" type="number" min="60" max="180" step="1" /></label>
+    <label>Key (chord 1 root) <select id="key"></select></label>
+    <label class="grow">4 chords <input id="chords" placeholder="Am F C G" /><small id="chordErr"></small></label>
+    <label>Export <select id="form"><option value="full">Full form 1–8</option><option value="double">Double only 5–8</option></select></label>
+    <label>Bars <select id="bars"><option>4</option><option selected>8</option><option>16</option></select></label>
+  </div>
+  <p class="eyebrow">Groove</p>
+  <div class="row" id="grooves"></div>
+  <p class="eyebrow">Double</p>
+  <div class="row" id="recipes"></div>
+  <p class="eyebrow">Chairs</p>
+  <div class="row" id="chairs"></div>
+  <p class="eyebrow">Form · your loop 1–4 · double-time 5–8</p>
+  <div class="bars" id="bars8"></div>
+  <p class="eyebrow">Web MIDI</p>
+  <div class="row inputs">
+    <label>In <select id="midiIn"><option value="">(none)</option></select></label>
+    <label>In mode <select id="midiInMode"><option value="chords">Chord = next slot</option><option value="transport">Any note = play/stop</option></select></label>
+    <label>Out <select id="midiOut"><option value="">(none)</option></select></label>
+    <small id="midiNote">Out: kit ch10, upright ch1, piano ch2, strings ch3.</small>
+  </div>
+  <p class="eyebrow">License</p>
+  <div class="row inputs"><span id="licState" class="status"></span><input id="licKey" placeholder="Lemon Squeezy license key" /><button class="mini" id="licBtn">Unlock</button></div>
+  <h2>Punch list</h2>
+  <pre id="punch"></pre>
+  <p class="status">Samples: FluidR3_GM (Frank Wen, CC BY 3.0) via gleitz/midi-js-soundfonts pinned @044fab8; acoustic kit from Virtuosity Drums (CC0) pinned @9f04cf9. iOS: the silent switch mutes Web Audio.</p>
+</main>
+<div class="dock">
+  <button id="playA">A · Your loop</button>
+  <button id="playB">B · Full form</button>
+  <button id="play8">8 · Double only</button>
+  <button class="ghost" id="stop">Stop</button>
+  <button class="ghost" id="exportWav">Export WAV</button>
+  <button class="ghost" id="exportMid">Export MIDI</button>
+  <button class="ghost" id="copy">Copy punch</button>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
