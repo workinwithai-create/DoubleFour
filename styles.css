@@ -39,3 +39,7 @@ button.mini { background:#ece7dc; color:#111; border:0; border-radius:999px; pad
 .tap { position:fixed; inset:0; background:#0f100fee; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9; color:var(--muted); }
 .tap button { background:#ece7dc; color:#111; border:0; border-radius:999px; padding:16px 26px; font-size:18px; font-weight:600; cursor:pointer; }
 .tap.hide { display:none; }
+/* mobile: compact dock + room to scroll content above it */
+main{padding-bottom:180px}
+#buy[aria-disabled="true"]{opacity:.55;cursor:default}
+@media (max-width:520px){.dock{gap:6px;padding:8px}.dock button{padding:8px 12px;font-size:13px}main{padding-bottom:150px}}

@@ -217,9 +217,23 @@ function exportMidBytes(o){ const st=merged(o); return {bytes:midiFile(st), name
 window.__doublefour = { state, stepEvents, exportWavBytes, exportMidBytes, loadAll, start:m=>start(m), stop, files, get playing(){return playing;}, get ctx(){return ctx;}, get missing(){return [...missing];} };
 
 // ---------- license gate (Lemon Squeezy License API) ----------
+// ONE place to configure checkout. Mark: paste the values from your Lemon Squeezy product (license keys enabled).
+export const LEMON = { checkoutUrl: "", storeId: null, productId: null };
+window.__lemon=LEMON; // test hook (config only, no secrets)
+const LS_API="https://api.lemonsqueezy.com/v1/licenses/";
 const lic = JSON.parse(localStorage.getItem(APP+"-license")||'{"valid":false}');
-async function validateKey(key){ const r=await fetch("https://api.lemonsqueezy.com/v1/licenses/validate",{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:"license_key="+encodeURIComponent(key)}); const j=await r.json(); return !!j.valid; }
-const licUI = () => document.getElementById("licState").textContent = lic.valid ? "Licensed: 8 and 16-bar WAV export unlocked." : "Free demo: all playback, MIDI export, MIDI I/O, 4-bar WAV. License unlocks 8/16-bar WAV.";
+const configured = () => !!(LEMON.storeId && LEMON.productId);
+async function lsCall(action, params){ const r=await fetch(LS_API+action,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(params).toString()}); return r.json(); }
+const ours = j => !!j && j.meta && +j.meta.store_id===+LEMON.storeId && +j.meta.product_id===+LEMON.productId;
+async function activateKey(key){ // returns {ok, reason}
+  if(!configured()) return {ok:false, reason:"Checkout is not live yet. License keys cannot be checked until the store is set up."};
+  const j=await lsCall("activate",{license_key:key, instance_name:"DoubleFour "+(navigator.platform||"web")});
+  if(!j.activated) return {ok:false, reason:j.error||"That key could not be activated."};
+  if(!ours(j)){ if(j.instance) lsCall("deactivate",{license_key:key, instance_id:j.instance.id}).catch(()=>{}); return {ok:false, reason:"That key is for a different product."}; }
+  return {ok:true, instance:j.instance.id}; }
+async function validateKey(key, instance){ if(!configured()) return false; const j=await lsCall("validate", instance?{license_key:key, instance_id:instance}:{license_key:key}); return !!j.valid && ours(j); }
+function saveLic(){ localStorage.setItem(APP+"-license",JSON.stringify(lic)); }
+const licUI = () => { document.getElementById("licOff").hidden=!lic.valid; document.getElementById("licState").textContent = lic.valid ? "Licensed: 8 and 16-bar WAV export unlocked." : "Free demo: all playback, MIDI export, MIDI I/O, 4-bar WAV. License unlocks 8/16-bar WAV."; };
 
 // ---------- Web MIDI ----------
 let midiAccess=null, midiOut=null, midiInPort=null; const held=new Set(); let slot=0, chordNotes=null;
@@ -281,10 +295,11 @@ document.getElementById("exportWav").onclick=async()=>{ const s=document.getElem
   s.textContent="Rendering…"; try{ const r=await exportWavBytes(); download(r.bytes,r.name,"audio/wav"); s.textContent="Saved "+r.name; }catch(e){ s.textContent="Export failed: "+e.message; } };
 document.getElementById("exportMid").onclick=()=>{ const r=exportMidBytes(); download(r.bytes,r.name,"audio/midi"); document.getElementById("status").textContent="Saved "+r.name; };
 ui.tapBtn.onclick=async()=>{ ui.tapBtn.textContent="Starting…"; await ensureCtx(); if(ctx.state==="running") ui.tap.classList.add("hide"); showLoad(); };
-ui.licBtn.onclick=async()=>{ const k=ui.licKey.value.trim(); if(!k) return; document.getElementById("licState").textContent="Checking…";
-  try{ lic.valid=await validateKey(k); lic.key=k; localStorage.setItem(APP+"-license",JSON.stringify(lic)); licUI(); if(!lic.valid) document.getElementById("licState").textContent="That key is not valid."; }
-  catch(e){ document.getElementById("licState").textContent="Could not reach Lemon Squeezy."; } };
-if(lic.valid&&lic.key) validateKey(lic.key).then(v=>{ lic.valid=v; localStorage.setItem(APP+"-license",JSON.stringify(lic)); licUI(); }).catch(()=>{});
-if(navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(a=>{ midiAccess=a; a.onstatechange=refreshMidi; refreshMidi(); }).catch(()=>{ ui.midiNote.textContent="Web MIDI unavailable or blocked in this browser."; });
-else ui.midiNote.textContent="Web MIDI not supported here (try Chrome/Edge).";
+ui.licBtn.onclick=async()=>{ const k=ui.licKey.value.trim(); if(!k) return; const st=document.getElementById("licState"); st.textContent="Checking…";
+  try{ const r=await activateKey(k); if(r.ok){ Object.assign(lic,{valid:true,key:k,instance:r.instance,checked:Date.now()}); saveLic(); licUI(); } else st.textContent=r.reason; }
+  catch(e){ st.textContent="Could not reach Lemon Squeezy. Check your connection and try again."; } };
+document.getElementById("licOff").onclick=async()=>{ if(lic.key&&lic.instance&&configured()) await lsCall("deactivate",{license_key:lic.key,instance_id:lic.instance}).catch(()=>{}); for(const k of Object.keys(lic)) delete lic[k]; lic.valid=false; saveLic(); licUI(); };
+{ const buy=document.getElementById("buy"); if(LEMON.checkoutUrl){ buy.href=LEMON.checkoutUrl; buy.textContent="Buy DoubleFour · $29 once"; } else { buy.removeAttribute("href"); buy.setAttribute("aria-disabled","true"); buy.textContent="Checkout opening soon · $29 once"; } }
+// re-check on load: a refunded/disabled key relocks; offline keeps the last good state
+if(lic.valid&&lic.key) validateKey(lic.key,lic.instance).then(v=>{ lic.valid=v; lic.checked=Date.now(); saveLic(); licUI(); }).catch(()=>{});
 syncInputs(); render(); licUI(); showLoad();

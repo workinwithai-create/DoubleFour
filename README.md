@@ -11,5 +11,6 @@
 - Export: 48 kHz / 24-bit / stereo WAV. The downbeat sits at sample 0, the length is exact, the tail is folded back to the start, the peak is −1.1 dBFS and compressor latency is compensated. MIDI is format 1 with tempo and 4/4.
 - Web MIDI: a chord can be played in, or a MIDI clock/transport can drive it.
 - Price: $29 one-time (Lemon Squeezy license key). The free demo exports 4 bars.
+- Checkout config lives in one place: `LEMON` at the top of the license section in `app.js` (`checkoutUrl`, `storeId`, `productId`). Keys are activated per device (`/v1/licenses/activate`) and accepted only when `meta.store_id` and `meta.product_id` match. They are re-validated on load, so refunded or disabled keys relock. "Remove key" deactivates the device. Until the config is filled in, the Buy button shows "Checkout opening soon" and no key unlocks.
 
 `npm run build` puts the files in `dist/`. Code is MIT; the samples keep their own licenses (see the credits in the app).
