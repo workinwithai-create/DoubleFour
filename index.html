@@ -30,12 +30,28 @@
   <div class="row" id="chairs"></div>
   <p class="eyebrow">Form · your loop 1–4 · double-time 5–8</p>
   <div class="bars" id="bars8"></div>
-  <p class="eyebrow">Web MIDI</p>
+  <p class="eyebrow">Play along live</p>
+  <section class="live">
   <div class="row inputs">
-    <label>In <select id="midiIn"><option value="">(none)</option></select></label>
-    <label>In mode <select id="midiInMode"><option value="chords">Chord = next slot</option><option value="transport">Any note = play/stop</option></select></label>
+    <label>MIDI in <select id="midiIn"><option value="">(none)</option></select></label>
+    <label>Notes do <select id="midiInMode"><option value="play">Play the live instrument</option><option value="chords">Chord entry (chord = next slot)</option></select></label>
+    <label>Live instrument <select id="liveInst"><option value="piano">Grand piano</option><option value="bass">Upright bass</option><option value="strings">String ensemble (hold)</option></select></label>
+    <label>Live level <input id="liveGainIn" type="range" min="0" max="1" step="0.01" /></label>
+    <label class="chk"><span><input type="checkbox" id="midiTransport" /> MIDI Start/Stop messages run transport</span></label>
+  </div>
+  <p id="liveHint" class="hint"></p>
+  <div class="kbrow"><button class="mini" id="liveOctDn" aria-label="Octave down">◀</button><div id="miniKeys" class="minikeys"></div><button class="mini" id="liveOctUp" aria-label="Octave up">▶</button><small id="liveOctLbl"></small></div>
+  <p class="status">Computer keys: A W S E D F T G Y H U J K play C to C, Z / X change octave. Velocity and sustain pedal (CC64) work from a MIDI keyboard. Highlighted keys are the tones of the chord playing now.</p>
+  <div class="row inputs">
+    <label class="chk"><span><input type="checkbox" id="liveRec" /> Record what I play while the band runs</span></label>
+    <label class="chk"><span><input type="checkbox" id="liveQuant" /> Quantize take to 16ths</span></label>
+    <button class="mini" id="liveClear">Clear take</button> <small id="liveTakeInfo" class="status"></small>
+  </div>
+  </section>
+  <p class="eyebrow">Web MIDI out</p>
+  <div class="row inputs">
     <label>Out <select id="midiOut"><option value="">(none)</option></select></label>
-    <small id="midiNote">Out: kit ch10, upright ch1, piano ch2, strings ch3.</small>
+    <small id="midiNote">Out: kit ch10, upright ch1, piano ch2, strings ch3. Live take exports on ch4.</small>
   </div>
   <p class="eyebrow">License</p>
   <div class="row inputs"><span id="licState" class="status"></span><input id="licKey" placeholder="Lemon Squeezy license key" /><button class="mini" id="licBtn">Unlock</button><button class="mini" id="licOff" hidden>Remove key</button><a class="mini" id="buy" target="_blank" rel="noopener">Buy</a></div>
